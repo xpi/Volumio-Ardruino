@@ -35,17 +35,20 @@ void setup() {
   pinMode(CLK, INPUT);
   pinMode(DT, INPUT);
 
-  attachInterrupt(interrupt0, ClockChanged, CHANGE);//设置中断0的处理函数，电平变化触发
+  attachInterrupt(interrupt0, ClockChanged, CHANGE);      //设置中断0的处理函数，电平变化触发
 
 
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
+  //
+  //  if (Ethernet.begin(mac) == 0) {
+  //    Serial.println("Failed to configure Ethernet using DHCP");
+  //    Ethernet.begin(mac, ip);
+  //  }
 
-  if (Ethernet.begin(mac) == 0) {
-    Serial.println("Failed to configure Ethernet using DHCP");
-    Ethernet.begin(mac, ip);
-  }
+  Ethernet.begin(mac, ip);
+
   Serial.println("connecting...");
 }
 
@@ -57,7 +60,7 @@ void loop() {
 void controller() {
   sensorValue1 = analogRead(sensorPin1);
   sensorValue2 = analogRead(sensorPin2);
- 
+
   buttonState = digitalRead(buttonPin);
   if (sensorValue1 < 50) {
     postreq("/db/?cmd=addreplaceplay", "path=USB/all");
@@ -74,8 +77,7 @@ void controller() {
     delay(400);
     return;
   }
-  if (sensorValue2 > 1022) {
-
+  if (sensorValue2 > 1000) {
     req("GET /command/?cmd=next&_=1448445158791 HTTP/1.1");
     Serial.println("next");
     count = 0;
@@ -107,7 +109,6 @@ void controller() {
 }
 
 void req(String uri) {
-
   if (client.connect(server, 80)) {
     Serial.println("connected");
     // Make a HTTP request:
